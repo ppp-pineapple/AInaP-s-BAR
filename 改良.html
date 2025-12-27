@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>AInaP's Cocktail Bar - Final Sound Ver.</title>
+    <style>
+        body {
+            background-color: #1a1a2e;
+            background-image: url('7Bar.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #e2e2e2;
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #game-container {
+            background-color: rgba(22, 33, 62, 0.85);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            width: 95%;
+            max-width: 750px;
+            text-align: center;
+            border: 2px solid #4ecca3;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .ainap-text { font-size: 1.2em; line-height: 1.7; margin-bottom: 25px; min-height: 60px; color: #ffffff; text-shadow: 2px 2px 4px #000; }
+        .choice-btn { display: block; width: 100%; padding: 16px; margin: 12px 0; background-color: rgba(15, 52, 96, 0.9); color: white; border: 1px solid #4ecca3; border-radius: 10px; cursor: pointer; transition: 0.3s; font-size: 1.1em; }
+        .choice-btn:hover { background-color: #4ecca3; color: #1a1a2e; font-weight: bold; transform: translateY(-2px); }
+        
+        .result-flex-container { display: flex; flex-wrap: wrap; gap: 25px; background: rgba(10, 25, 47, 0.9); padding: 25px; border-radius: 15px; margin-top: 20px; text-align: left; border-left: 8px solid #e94560; align-items: center; }
+        .cocktail-image-box { flex: 1 1 250px; max-width: 300px; margin: 0 auto; }
+        .cocktail-image-box img { width: 100%; height: auto; border-radius: 15px; border: 3px solid #4ecca3; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .cocktail-text-box { flex: 2 1 300px; font-size: 1em; line-height: 1.8; }
+        
+        h2 { color: #e94560; margin-top: 0; text-shadow: 2px 2px 8px #000; font-size: 2.2em; letter-spacing: 3px; }
+        strong { color: #4ecca3; font-size: 1.3em; }
+    </style>
+</head>
+<body>
+
+<audio id="bgm-player" src="bar_bgm.mp3" loop></audio>
+<audio id="se-shaker" src="shaker.mp3"></audio>
+<audio id="se-pour" src="pour.mp3"></audio> <div id="game-container">
+    <h2>AInaP's BAR</h2>
+    <div id="ainap-message" class="ainap-text"></div>
+    <div id="choices"></div>
+    <div id="result" style="display:none;"></div>
+</div>
+
+<script>
+    const messageElement = document.getElementById('ainap-message');
+    const choicesElement = document.getElementById('choices');
+    const resultElement = document.getElementById('result');
+    const bgmPlayer = document.getElementById('bgm-player');
+    const seShaker = document.getElementById('se-shaker');
+    const sePour = document.getElementById('se-pour'); // 新しく追加
+
+    let firstAnswer = "";
+
+    const script = {
+        start: { text: "いらっしゃいませ。今はどんな気分ですか？<br>AInaPがあなたの心に響く一杯をお作りします。" },
+        question1: { text: "今日は、どんな一日でしたか？" },
+        question2: { text: "ありがとうございます。ではもう一つ……<br>「甘いカクテル」はお好きですか？" }
+    };
+
+    const cocktails = {
+        "refresh_sweet": { name: "ブルー・ハワイ", desc: "ラムベースでパイナップルが香る、南国気分全開のカクテルです。", fortune: "その弾ける笑顔をさらに輝かせる、トロピカルな魔法をかけました！", image: "blue_hawaii.jpg" },
+        "refresh_dry": { name: "モヒート", desc: "フレッシュミントとライムが爽快な、ラムベースの定番です。", fortune: "最高の一日の締めくくりに、この爽やかさをプラスして加速しましょう！", image: "モヒート.jpg" },
+        "relax_sweet": { name: "グラスホッパー", desc: "ミントとチョコの風味がデザートのような、緑色の美しいカクテルです。", fortune: "穏やかな夜には、甘い贅沢が一番のスパイスになりますよ。", image: "グラスホッパー.jpg" },
+        "relax_dry": { name: "サイドカー", desc: "ブランデーとオレンジのリキュールが織りなす、気品ある一杯です。", fortune: "あなたの落ち着いた魅力にふさわしい、大人のスタンダードをどうぞ。", image: "サイドカー.jpg" },
+        "healing_sweet": { name: "カシス・オレンジ", desc: "カシスの甘酸っぱさとオレンジが優しい、フルーティーな人気者です。", fortune: "今日はお疲れ様。優しい甘さが、あなたの心をふんわり包み込みます。", image: "カシオレ.jpg" },
+        "healing_dry": { name: "ジン・トニック", desc: "ジンの香りとトニックの苦味が絶妙な、シンプルで奥深い癒やしです。", fortune: "余計なものを削ぎ落として、ゆっくり自分を取り戻す時間にして下さいね。", image: "ジントニック.jpg" },
+        "challenge_sweet": { name: "テキーラ・サンライズ", desc: "オレンジのグラデーションが朝焼けを思わせる、情熱的なカクテルです。", fortune: "その挑戦心は、明日という新しい太陽を呼び寄せる力になります！", image: "テキーラサンライズ.jpg" },
+        "challenge_dry": { name: "マルガリータ", desc: "テキーラにライムのキレを加えた、強さと美しさを兼ね備えた一杯です。", fortune: "高みを目指すあなたには、このキリッとした刺激が心地よいはずです。", image: "マルガリータ.jpg" }
+    };
+
+    function displayStart() {
+        messageElement.innerHTML = script.start.text;
+        const btn = document.createElement('button');
+        btn.innerText = "BARの扉を開ける（BGM再生）";
+        btn.className = "choice-btn";
+        btn.onclick = () => {
+            bgmPlayer.volume = 0.3;
+            bgmPlayer.play();
+            askQuestion1();
+        };
+        choicesElement.appendChild(btn);
+    }
+
+    // 音を鳴らす関数たち
+    function playShaker() {
+        seShaker.currentTime = 0;
+        seShaker.play();
+    }
+
+    function playPour() {
+        sePour.currentTime = 0;
+        sePour.play();
+    }
+
+    function askQuestion1() {
+        choicesElement.innerHTML = '';
+        messageElement.innerHTML = script.question1.text;
+        const q1Choices = [
+            { text: "最高の気分で、弾けるような一日だった！", type: "refresh" },
+            { text: "落ち着いていて、穏やかな一日だった。", type: "relax" },
+            { text: "ちょっと疲れて、癒やされたい気分。", type: "healing" },
+            { text: "新しいことに挑戦したくて、ワクワクしている。", type: "challenge" }
+        ];
+        q1Choices.forEach(choice => {
+            const btn = document.createElement('button');
+            btn.innerText = choice.text;
+            btn.className = "choice-btn";
+            btn.onclick = () => {
+                playShaker(); // ここは「シャカシャカ」
+                firstAnswer = choice.type;
+                askQuestion2();
+            };
+            choicesElement.appendChild(btn);
+        });
+    }
+
+    function askQuestion2() {
+        choicesElement.innerHTML = '';
+        messageElement.innerHTML = script.question2.text;
+        const q2Choices = [
+            { text: "はい、甘いのが好き！", type: "sweet" },
+            { text: "いいえ、スッキリ・辛口が好みです。", type: "dry" }
+        ];
+        q2Choices.forEach(choice => {
+            const btn = document.createElement('button');
+            btn.innerText = choice.text;
+            btn.className = "choice-btn";
+            btn.onclick = () => {
+                playPour(); // ここを「注ぐ音」に変更しました
+                showResult(firstAnswer, choice.type);
+            };
+            choicesElement.appendChild(btn);
+        });
+    }
+
+    function showResult(type1, type2) {
+        const key = `${type1}_${type2}`;
+        const cocktail = cocktails[key];
+        choicesElement.innerHTML = '';
+        messageElement.innerHTML = `お待たせいたしました。<br>今のあなたにぴったりの一杯をご用意しました。`;
+        
+        resultElement.style.display = 'block';
+        resultElement.innerHTML = `
+            <div class="result-flex-container">
+                <div class="cocktail-image-box">
+                    <img src="${cocktail.image}" alt="${cocktail.name}">
+                </div>
+                <div class="cocktail-text-box">
+                    今夜の一杯：<strong>「${cocktail.name}」</strong><br><br>
+                    【AInaP's カクテル豆知識】<br>${cocktail.desc}<br><br>
+                    【AInaPからの占い】<br>${cocktail.fortune}
+                </div>
+            </div>
+            <button class="choice-btn" style="margin-top:20px;" onclick="location.reload()">もう一度占う</button>
+        `;
+    }
+
+    displayStart();
+</script>
+
+</body>
+</html>
