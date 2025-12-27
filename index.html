@@ -2,45 +2,19 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>AInaP's Cocktail Bar - Final Sound Ver.</title>
+    <title>AInaP's Cocktail Bar - Music Ver.</title>
     <style>
-        body {
-            background-color: #1a1a2e;
-            background-image: url('7Bar.jpg'); 
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: #e2e2e2;
-            font-family: "Helvetica Neue", Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        #game-container {
-            background-color: rgba(22, 33, 62, 0.85);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 0 40px rgba(0,0,0,0.8);
-            width: 95%;
-            max-width: 750px;
-            text-align: center;
-            border: 2px solid #4ecca3;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
+        body { background-color: #1a1a2e; background-image: url('7Bar.jpg'); background-size: cover; background-position: center; background-attachment: fixed; color: #e2e2e2; font-family: "Helvetica Neue", Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        #game-container { background-color: rgba(22, 33, 62, 0.85); padding: 30px; border-radius: 20px; box-shadow: 0 0 40px rgba(0,0,0,0.8); width: 95%; max-width: 750px; text-align: center; border: 2px solid #4ecca3; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
         .ainap-text { font-size: 1.2em; line-height: 1.7; margin-bottom: 25px; min-height: 60px; color: #ffffff; text-shadow: 2px 2px 4px #000; }
-        .choice-btn { display: block; width: 100%; padding: 16px; margin: 12px 0; background-color: rgba(15, 52, 96, 0.9); color: white; border: 1px solid #4ecca3; border-radius: 10px; cursor: pointer; transition: 0.3s; font-size: 1.1em; }
+        .choice-btn { display: block; width: 100%; padding: 16px; margin: 12px 0; background-color: rgba(15, 52, 96, 0.9); color: white; border: 1px solid #4ecca3; border-radius: 10px; cursor: pointer; transition: 0.3s; font-size: 1.1em; text-decoration: none; }
         .choice-btn:hover { background-color: #4ecca3; color: #1a1a2e; font-weight: bold; transform: translateY(-2px); }
-        
         .result-flex-container { display: flex; flex-wrap: wrap; gap: 25px; background: rgba(10, 25, 47, 0.9); padding: 25px; border-radius: 15px; margin-top: 20px; text-align: left; border-left: 8px solid #e94560; align-items: center; }
         .cocktail-image-box { flex: 1 1 250px; max-width: 300px; margin: 0 auto; }
         .cocktail-image-box img { width: 100%; height: auto; border-radius: 15px; border: 3px solid #4ecca3; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         .cocktail-text-box { flex: 2 1 300px; font-size: 1em; line-height: 1.8; }
-        
+        .music-link { display: inline-block; margin-top: 10px; padding: 8px 15px; background-color: #e94560; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 0.9em; }
+        .music-link:hover { background-color: #ff6b81; }
         h2 { color: #e94560; margin-top: 0; text-shadow: 2px 2px 8px #000; font-size: 2.2em; letter-spacing: 3px; }
         strong { color: #4ecca3; font-size: 1.3em; }
     </style>
@@ -49,7 +23,9 @@
 
 <audio id="bgm-player" src="bar_bgm.mp3" loop></audio>
 <audio id="se-shaker" src="shaker.mp3"></audio>
-<audio id="se-pour" src="pour.mp3"></audio> <div id="game-container">
+<audio id="se-pour" src="pour.mp3"></audio>
+
+<div id="game-container">
     <h2>AInaP's BAR</h2>
     <div id="ainap-message" class="ainap-text"></div>
     <div id="choices"></div>
@@ -62,7 +38,7 @@
     const resultElement = document.getElementById('result');
     const bgmPlayer = document.getElementById('bgm-player');
     const seShaker = document.getElementById('se-shaker');
-    const sePour = document.getElementById('se-pour'); // 新しく追加
+    const sePour = document.getElementById('se-pour');
 
     let firstAnswer = "";
 
@@ -72,15 +48,16 @@
         question2: { text: "ありがとうございます。ではもう一つ……<br>「甘いカクテル」はお好きですか？" }
     };
 
+    // ★ 曲の情報を追加しました。URLはあなたのオリジナル曲のリンクに書き換えてください。
     const cocktails = {
-        "refresh_sweet": { name: "ブルー・ハワイ", desc: "ラムベースでパイナップルが香る、南国気分全開のカクテルです。", fortune: "その弾ける笑顔をさらに輝かせる、トロピカルな魔法をかけました！", image: "blue_hawaii.jpg" },
-        "refresh_dry": { name: "モヒート", desc: "フレッシュミントとライムが爽快な、ラムベースの定番です。", fortune: "最高の一日の締めくくりに、この爽やかさをプラスして加速しましょう！", image: "モヒート.jpg" },
-        "relax_sweet": { name: "グラスホッパー", desc: "ミントとチョコの風味がデザートのような、緑色の美しいカクテルです。", fortune: "穏やかな夜には、甘い贅沢が一番のスパイスになりますよ。", image: "グラスホッパー.jpg" },
-        "relax_dry": { name: "サイドカー", desc: "ブランデーとオレンジのリキュールが織りなす、気品ある一杯です。", fortune: "あなたの落ち着いた魅力にふさわしい、大人のスタンダードをどうぞ。", image: "サイドカー.jpg" },
-        "healing_sweet": { name: "カシス・オレンジ", desc: "カシスの甘酸っぱさとオレンジが優しい、フルーティーな人気者です。", fortune: "今日はお疲れ様。優しい甘さが、あなたの心をふんわり包み込みます。", image: "カシオレ.jpg" },
-        "healing_dry": { name: "ジン・トニック", desc: "ジンの香りとトニックの苦味が絶妙な、シンプルで奥深い癒やしです。", fortune: "余計なものを削ぎ落として、ゆっくり自分を取り戻す時間にして下さいね。", image: "ジントニック.jpg" },
-        "challenge_sweet": { name: "テキーラ・サンライズ", desc: "オレンジのグラデーションが朝焼けを思わせる、情熱的なカクテルです。", fortune: "その挑戦心は、明日という新しい太陽を呼び寄せる力になります！", image: "テキーラサンライズ.jpg" },
-        "challenge_dry": { name: "マルガリータ", desc: "テキーラにライムのキレを加えた、強さと美しさを兼ね備えた一杯です。", fortune: "高みを目指すあなたには、このキリッとした刺激が心地よいはずです。", image: "マルガリータ.jpg" }
+        "refresh_sweet": { name: "ブルー・ハワイ", desc: "ラムベースでパイナップルが香る、南国気分全開のカクテルです。", fortune: "その弾ける笑顔をさらに輝かせる、トロピカルな魔法をかけました！", image: "blue_hawaii.jpg", songTitle: "Happy Bread", songUrl: "https://open.spotify.com/album/1ZzNsrxTknLylGX9r3tZit?si=vevk9iruQi-2uZSFUYeNWQ" },
+        "refresh_dry": { name: "モヒート", desc: "フレッシュミントとライムが爽快な、ラムベースの定番です。", fortune: "最高の一日の締めくくりに、この爽やかさをプラスして加速しましょう！", image: "モヒート.jpg", songTitle: "Winter Velocity", songUrl: "https://open.spotify.com/intl-ja/track/4lFrjKJP2TmsynJcbTDaUx?si=aa2858aa7d154a0a" },
+        "relax_sweet": { name: "グラスホッパー", desc: "ミントとチョコの風味がデザートのような、緑色の美しいカクテルです。", fortune: "穏やかな夜には、甘い贅沢が一番のスパイスになりますよ。", image: "グラスホッパー.jpg", songTitle: "とことこ てくてく", songUrl: "https://open.spotify.com/album/18TX7XY7xuH5wJ726QhY75?si=F8jsH5LjQ0O5918r9dBrRg" },
+        "relax_dry": { name: "サイドカー", desc: "ブランデーとオレンジのリキュールが織りなす、気品ある一杯です。", fortune: "あなたの落ち着いた魅力にふさわしい、大人のスタンダードをどうぞ。", image: "サイドカー.jpg", songTitle: "どこかに行きたいけど、混んでるのはイヤ", songUrl: "https://music.youtube.com/playlist?list=OLAK5uy_kgKkaBHyszVKVsE8R37Q3Mti2b84Aj824&si=N3_aE2oTQ1z_9HXT" },
+        "healing_sweet": { name: "カシス・オレンジ", desc: "カシスの甘酸っぱさとオレンジが優しい、フルーティーな人気者です。", fortune: "今日はお疲れ様。優しい甘さが、あなたの心をふんわり包み込みます。", image: "カシオレ.jpg", songTitle: "今日は休もう", songUrl: "https://music.youtube.com/playlist?list=OLAK5uy_nZIlVNp-lp8atYUsp5B2nKNWdlQquFva8&si=lipKoY3VExSGHhFZ" },
+        "healing_dry": { name: "ジン・トニック", desc: "ジンの香りとトニックの苦味が絶妙な、シンプルで奥深い癒やしです。", fortune: "余計なものを削ぎ落として、ゆっくり自分を取り戻す時間にして下さいね。", image: "ジントニック.jpg", songTitle: "電池切れ", songUrl: "https://music.youtube.com/playlist?list=OLAK5uy_nWJFnhbZLpkMGW6m5C_NE78tiltIeUjJc&si=Lfj95eq-SUQ19aXX" },
+        "challenge_sweet": { name: "テキーラ・サンライズ", desc: "オレンジのグラデーションが朝焼けを思わせる、情熱的なカクテルです。", fortune: "その挑戦心は、明日という新しい太陽を呼び寄せる力になります！", image: "テキーラサンライズ.jpg", songTitle: "時間が足りない", songUrl: "https://open.spotify.com/album/29GptLHvCErdbdMPUN8Ocs?si=3ErnTFYtTSqiuSnyavI5-w" },
+        "challenge_dry": { name: "マルガリータ", desc: "テキーラにライムのキレを加えた、強さと美しさを兼ね備えた一杯です。", fortune: "高みを目指すあなたには、このキリッとした刺激が心地よいはずです。", image: "マルガリータ.jpg", songTitle: "頑張れ、自分", songUrl: "https://music.youtube.com/playlist?list=OLAK5uy_kChHIcdyxoM-rqZWWQrY9Brh6nJw9TOwc&si=u7exaH2AN9pE3THE" }
     };
 
     function displayStart() {
@@ -88,24 +65,12 @@
         const btn = document.createElement('button');
         btn.innerText = "BARの扉を開ける（BGM再生）";
         btn.className = "choice-btn";
-        btn.onclick = () => {
-            bgmPlayer.volume = 0.3;
-            bgmPlayer.play();
-            askQuestion1();
-        };
+        btn.onclick = () => { bgmPlayer.volume = 0.3; bgmPlayer.play(); askQuestion1(); };
         choicesElement.appendChild(btn);
     }
 
-    // 音を鳴らす関数たち
-    function playShaker() {
-        seShaker.currentTime = 0;
-        seShaker.play();
-    }
-
-    function playPour() {
-        sePour.currentTime = 0;
-        sePour.play();
-    }
+    function playShaker() { seShaker.currentTime = 0; seShaker.play(); }
+    function playPour() { sePour.currentTime = 0; sePour.play(); }
 
     function askQuestion1() {
         choicesElement.innerHTML = '';
@@ -120,11 +85,7 @@
             const btn = document.createElement('button');
             btn.innerText = choice.text;
             btn.className = "choice-btn";
-            btn.onclick = () => {
-                playShaker(); // ここは「シャカシャカ」
-                firstAnswer = choice.type;
-                askQuestion2();
-            };
+            btn.onclick = () => { playShaker(); firstAnswer = choice.type; askQuestion2(); };
             choicesElement.appendChild(btn);
         });
     }
@@ -140,10 +101,7 @@
             const btn = document.createElement('button');
             btn.innerText = choice.text;
             btn.className = "choice-btn";
-            btn.onclick = () => {
-                playPour(); // ここを「注ぐ音」に変更しました
-                showResult(firstAnswer, choice.type);
-            };
+            btn.onclick = () => { playPour(); showResult(firstAnswer, choice.type); };
             choicesElement.appendChild(btn);
         });
     }
@@ -162,8 +120,11 @@
                 </div>
                 <div class="cocktail-text-box">
                     今夜の一杯：<strong>「${cocktail.name}」</strong><br><br>
-                    【AInaP's カクテル豆知識】<br>${cocktail.desc}<br><br>
-                    【AInaPからの占い】<br>${cocktail.fortune}
+                    【カクテル豆知識】<br>${cocktail.desc}<br><br>
+                    【AInaPからの占い】<br>${cocktail.fortune}<br><br>
+                    【今夜のオススメ曲】<br>
+                    🎶 ${cocktail.songTitle}<br>
+                    <a href="${cocktail.songUrl}" target="_blank" class="music-link">曲を聴いてみる</a>
                 </div>
             </div>
             <button class="choice-btn" style="margin-top:20px;" onclick="location.reload()">もう一度占う</button>
